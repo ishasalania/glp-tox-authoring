@@ -17,14 +17,28 @@ The supplied customer answers and architecture dated
 
 ## Publish on GitHub Pages
 
-Review the design for publication approval first. Upload **only the contents of
-this site folder** to the root of a dedicated website repository. Do not upload
-the parent folder: it contains study documents and local application artifacts.
+The live pages are password-encrypted. **Do not upload the source HTML files or
+this entire folder.** Keep the password out of source control and command-line
+arguments. Run `node protect.mjs /path/to/private-output` and supply the password
+on standard input. Publish only the three generated HTML files. Re-encrypt all
+three pages together after any content or password change.
+
+The wrapper uses AES-256-GCM and PBKDF2-SHA-256 (600,000 iterations) in the
+browser. A derived decryption key, not the password, is kept in tab session
+storage so links between the three pages work without another prompt. The
+Lock page button clears that key and reloads the current page; close other
+already-unlocked tabs separately. JavaScript and HTTPS are required.
+
+This protects new page contents, not previous plaintext commits, cached copies,
+screenshots or content shared by someone with the password. Earlier public
+repository history remains accessible. There is no server-side authentication,
+rate limiting or per-user revocation; use authenticated hosting for confidential
+material. Never upload the parent folder, study documents or local artifacts.
 
 In the dedicated repository, select Settings → Pages → Deploy from a branch,
 then select the publishing branch and `/ (root)`.
 
 The page describes a proposed application; GitHub Pages does not run the Foundry
 workflow or provide authenticated reviewer access. `noindex` discourages search
-indexing but provides no access control. No GitHub publication or Azure
-deployment is performed by these files.
+indexing but provides no access control. No Azure deployment is performed by
+these files.
