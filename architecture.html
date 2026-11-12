@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>GLP Tox Authoring Architecture</title>
+<style>
+:root{
+  /* Layout: sticky nav, split hero with orbit, dark stat band, then numbered editorial sections on alternating paper tones */
+  --paper:#E8E6E1;
+  --paper-2:#F4F3EF;
+  --card:#FFFFFF;
+  --ink:#16302A;
+  --forest:#1D3A34;
+  --accent:#2E7A60;
+  --copper:#D8A06A;
+  --muted:#5D6965;
+  --line:#D3D0C8;
+  --font:"Manrope",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper-2);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{text-wrap:balance;margin:0;letter-spacing:-0.02em}
+a{color:inherit}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.skip{position:absolute;top:-100px;background:white;padding:12px;z-index:20}
+.skip:focus{top:0}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+
+/* nav */
+nav.top{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:1px solid var(--line)}
+nav.top .wrap{display:flex;align-items:center;gap:28px;min-height:72px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:16px;font-weight:700;font-size:17px;color:var(--forest)}
+.brand .sep{width:1px;height:28px;background:var(--line)}
+.brand small{font-size:12px;font-weight:700;letter-spacing:.18em;color:#8A948F;text-transform:uppercase}
+.links{display:flex;gap:26px;margin-left:auto;flex-wrap:wrap}
+.links a{text-decoration:none;font-weight:600;font-size:15px;color:var(--forest);padding:6px 0;border-bottom:2px solid transparent}
+.links a:hover{border-bottom-color:var(--accent)}
+.tag{font-weight:700;font-size:14px;color:var(--forest);border-left:1px solid var(--line);padding-left:22px}
+
+/* hero */
+.hero{background:var(--paper);padding:84px 0 72px}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+.hero h1{font-size:clamp(42px,6vw,76px);line-height:1.02;font-weight:800;margin:18px 0 22px}
+.hero h1 span{display:block;color:var(--accent)}
+.lede{font-size:19px;color:#3E4B47;max-width:58ch}
+.btns{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 28px;border-radius:999px;font-weight:700;font-size:16px;text-decoration:none}
+.btn.dark{background:var(--forest);color:#fff}
+.btn.light{background:var(--card);color:var(--forest);border:1px solid var(--line)}
+.orbit{position:relative;aspect-ratio:1/1;max-width:500px;width:100%;justify-self:center}
+.orbit svg.rings{position:absolute;inset:0;width:100%;height:100%}
+.node{position:absolute;border-radius:50%;background:var(--card);box-shadow:0 18px 40px rgba(29,58,52,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px}
+.node b{font-size:17px;color:var(--forest)}
+.node span{font-size:13px;color:var(--muted);line-height:1.35}
+.node.core{width:46%;height:46%;left:27%;top:27%;background:var(--forest);box-shadow:0 0 0 12px rgba(29,58,52,.14)}
+.node.core b{color:#fff;font-size:21px}
+.node.core span{color:#C9D6D1;font-size:14px}
+.node.sat{width:28%;height:28%}
+.n1{left:6%;top:2%}.n2{right:0;top:36%}.n3{left:10%;bottom:0}
+
+/* stat band */
+.band{background:var(--forest);color:#fff}
+.band .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
+.band div.s{padding:30px 24px;border-left:1px solid rgba(255,255,255,.14)}
+.band div.s:first-child{border-left:0;padding-left:0}
+.band small{display:block;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#A9BDB6;font-weight:600}
+.band strong{display:block;font-size:21px;font-weight:700;margin-top:6px}
+
+/* sections */
+section.sec{padding:64px 0;scroll-margin-top:160px}
+section.alt{background:var(--paper)}
+.sec-head{display:grid;grid-template-columns:90px 1fr;gap:20px;margin-bottom:40px}
+.num{font-size:15px;font-weight:800;color:var(--copper);letter-spacing:.06em;padding-top:8px}
+.sec-head h2{font-size:clamp(30px,3.6vw,44px);font-weight:800;line-height:1.1;margin:10px 0 14px}
+.sec-head p{color:var(--muted);max-width:64ch;margin:0}
+
+/* legend */
+.legend{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.lg{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.chip{display:inline-block;font-size:13px;font-weight:700;padding:3px 10px;border-radius:6px;margin-bottom:12px}
+.lg h3{font-size:16px;margin-bottom:4px}
+.lg p{font-size:14px;color:var(--muted);margin:0}
+.lg .to{display:block;margin-top:12px;font-size:13px;font-weight:700;color:var(--accent)}
+
+/* pipeline */
+.pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;position:relative}
+.stage{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 20px;position:relative;display:flex;flex-direction:column}
+.stage:not(:last-child)::after{content:"";position:absolute;right:-12px;top:50%;width:10px;height:10px;border-top:2px solid var(--copper);border-right:2px solid var(--copper);transform:translateY(-50%) rotate(45deg);z-index:2}
+.stage .k{font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--copper);text-transform:uppercase}
+.stage h3{font-size:18px;margin:6px 0 10px}
+.stage ul{margin:0;padding-left:18px;font-size:14px;color:#3E4B47}
+.stage li{margin-bottom:4px}
+.svc{margin-top:auto;padding-top:14px;display:flex;flex-wrap:wrap;gap:6px}
+.svc span{font-size:12px;font-weight:700;color:var(--forest);background:#E3EEE9;border-radius:999px;padding:3px 10px}
+.stage.exec{background:var(--forest);color:#fff;border-color:var(--forest)}
+.stage.exec ul{color:#D7E2DE}
+.stage.exec .svc span{background:rgba(255,255,255,.12);color:#fff}
+.split{display:grid;gap:8px;margin-bottom:6px}
+.lane{border-radius:10px;padding:10px 12px;font-size:13.5px;line-height:1.4}
+.lane b{display:block;font-size:14px}
+.lane.code{background:rgba(255,255,255,.08)}
+.lane.agent{background:rgba(216,160,106,.22)}
+.lane.human{background:rgba(255,255,255,.16)}
+.note{margin-top:22px;font-size:15px;color:var(--muted);display:flex;gap:10px;align-items:flex-start}
+.note::before{content:"";flex:0 0 10px;height:10px;margin-top:7px;border-radius:50%;background:var(--copper)}
+
+/* table */
+.tbl{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:18px}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:15px}
+th,td{text-align:left;padding:15px 20px;border-bottom:1px solid #ECEAE5;vertical-align:top}
+th{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;background:#FAF9F6}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:700;color:var(--forest);width:28%}
+.pill{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.p-code{background:#E3EEE9;color:#1D5C47}
+.p-agent{background:#F6E6D6;color:#7A4A1E}
+.p-human{background:#ECEAE5;color:#3E4B47}
+
+/* agents */
+.agents{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.ag{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;display:flex;flex-direction:column}
+.ag .role{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.ag h3{font-size:21px;margin:6px 0 10px}
+.ag p{font-size:15px;color:#3E4B47;margin:0 0 14px}
+.ag .tools{margin-top:auto;font-size:13px;color:var(--muted);border-top:1px solid #ECEAE5;padding-top:12px}
+.ag .tools code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:var(--forest);background:#F1F0EC;border-radius:4px;padding:1px 5px}
+.ag.human{background:var(--forest);border-color:var(--forest);color:#fff}
+.ag.human .role{color:var(--copper)}
+.ag.human p{color:#D7E2DE}
+.ag.human .tools{color:#BFD0CA;border-top-color:rgba(255,255,255,.15)}
+
+/* flow */
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;counter-reset:f}
+.fs{padding:0 22px 0 0;position:relative}
+.fs .bar{height:4px;background:var(--line);border-radius:2px;margin-bottom:18px;position:relative}
+.fs .bar::before{content:"";position:absolute;left:0;top:-6px;width:16px;height:16px;border-radius:50%;background:var(--forest)}
+.fs.agent-step .bar::before{background:var(--copper)}
+.fs .pt{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.fs h3{font-size:18px;margin:4px 0 8px}
+.fs p{font-size:14.5px;color:#3E4B47;margin:0}
+.callout{margin-top:44px;display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:start;background:var(--card);border:1px solid var(--line);border-left:5px solid var(--copper);border-radius:0 18px 18px 0;padding:24px 28px}
+.callout h3{font-size:19px;white-space:nowrap}
+.callout p{margin:0;color:#3E4B47;font-size:15.5px}
+
+/* trust */
+.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tr{border-top:3px solid var(--forest);padding-top:18px}
+.tr h3{font-size:19px;margin-bottom:8px}
+.tr p{font-size:15px;color:#3E4B47;margin:0}
+
+/* roadmap */
+.road{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.ph{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}
+.ph .w{font-size:13px;font-weight:700;color:var(--copper)}
+.ph h3{font-size:18px;margin:6px 0 10px}
+.ph ul{margin:0;padding-left:18px;font-size:14.5px;color:#3E4B47}
+.ph.now{border:2px solid var(--accent)}
+.ph.now .w{color:var(--accent)}
+
+footer{background:var(--forest);color:#C9D6D1;padding:44px 0;font-size:15px}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+footer b{color:#fff}
+
+
+/* decisions */
+.dec{display:grid;grid-template-columns:1.25fr 1fr;gap:20px}
+.dcol{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:8px 24px}
+.dcol h3{font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:16px 0 4px}
+.di{display:grid;grid-template-columns:44px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid #ECEAE5;font-size:15px}
+.di:last-child{border-bottom:0}
+.di .id{font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+.dcol.open .id{color:var(--copper)}
+.di b{display:block;color:var(--forest)}
+.di span{color:#3E4B47}
+@media (max-width:1000px){.dec{grid-template-columns:1fr}}
+@media (max-width:1000px){
+  .hero .wrap{grid-template-columns:1fr}
+  .orbit{max-width:420px}
+  .pipe{grid-template-columns:1fr 1fr}
+  .stage:not(:last-child)::after{display:none}
+  .legend,.road{grid-template-columns:1fr 1fr}
+  .agents,.trust{grid-template-columns:1fr 1fr}
+  .flow{grid-template-columns:1fr;gap:28px}
+  .band .wrap{grid-template-columns:1fr 1fr}
+  .band div.s:nth-child(3){border-left:0;padding-left:0}
+  nav.top .wrap{padding-top:12px;padding-bottom:12px;gap:12px}
+  .links{margin-left:0;gap:10px 20px;width:100%}
+  .links a{font-size:13px}
+  .tag{display:none}
+}
+@media (max-width:620px){
+  .wrap{padding:0 18px}
+  .pipe,.legend,.road,.agents,.trust,.band .wrap{grid-template-columns:1fr}
+  .band div.s{border-left:0;padding-left:0;border-top:1px solid rgba(255,255,255,.14)}
+  .sec-head{grid-template-columns:1fr;gap:0}
+  .callout{grid-template-columns:1fr}
+  .callout h3{white-space:normal}
+  .node b{font-size:14px}.node span{font-size:11.5px}
+}
+@media print{
+  nav.top,.btns,.skip{display:none}
+  section.sec,.hero{padding:24px 0}
+  .stage,.ag,.ph,.lg,.tr{break-inside:avoid}
+  .tbl{overflow:visible}
+  table{min-width:0}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<nav class="top" aria-label="Page sections">
+  <div class="wrap">
+    <div class="brand">Boehringer Ingelheim <span class="sep" aria-hidden="true"></span> Microsoft <small>Document authoring</small></div>
+    <div class="links">
+      <a href="index.html">Overview</a>
+      <a href="agentic.html">Agentic approach</a>
+      <a href="#template">Template</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#agents">Agents</a>
+      <a href="#trust">Trust</a>
+      <a href="#decisions">Decisions</a>
+      <a href="#roadmap">Roadmap</a>
+    </div>
+    <div class="tag">GLP Tox v11</div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">GLP tox report · Foundry architecture · Agents at defined points</div>
+      <h1>Build a review copy. <span>Keep the evidence.</span></h1>
+      <p class="lede">An evidence-led Microsoft Foundry and Azure design for the GLP toxicology authoring use case. Reviewed template rules, bounded agents and deterministic tools produce a traceable Word review copy. The study director retains scientific judgement and final approval.</p>
+      <p class="note">Proposed target architecture for customer review; the cloud workflow is not yet deployed.</p>
+      <div class="btns">
+        <a class="btn dark" href="#architecture">See the architecture <span aria-hidden="true">→</span></a>
+        <a class="btn light" href="#decisions">Your decisions, applied</a>
+      </div>
+    </div>
+    <div class="orbit" role="img" aria-label="The task contract sits at the centre, connected to Content Understanding for grounded extraction, Agent Framework for bounded agents, and Entra for agent identity">
+      <svg class="rings" viewBox="0 0 500 500" aria-hidden="true">
+        <ellipse cx="270" cy="240" rx="225" ry="150" fill="none" stroke="#B9C6C0" stroke-width="1.2" transform="rotate(-18 270 240)"/>
+        <ellipse cx="250" cy="270" rx="200" ry="120" fill="none" stroke="#D8A06A" stroke-width="1.2" transform="rotate(28 250 270)"/>
+      </svg>
+      <div class="node core"><b>Task contract</b><span>template rules · evidence · approval</span></div>
+      <div class="node sat n1"><b>Content Understanding</b><span>grounded extraction</span></div>
+      <div class="node sat n2"><b>Agent Framework</b><span>bounded agents</span></div>
+      <div class="node sat n3"><b>Entra</b><span>agent identity</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="band">
+  <div class="wrap">
+    <div class="s"><small>Design target · untested</small><strong>Up to 5,000 pages per study</strong></div>
+    <div class="s"><small>Reported extraction run</small><strong>785 pages in 55 s</strong></div>
+    <div class="s"><small>Reported authoring · after extraction</small><strong>13–16 of 38 tasks in 97–114 s</strong></div>
+    <div class="s"><small>Principle</small><strong>Evidence first, agents where needed</strong></div>
+  </div>
+</div>
+
+<main id="main">
+<section class="sec" id="template">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="num">01</div>
+      <div>
+        <div class="eyebrow">The starting point</div>
+        <h2>The template is a program written in Word</h2>
+        <p>The existing PoC maps 259 non-fixed blocks to 38 reviewed tasks. Colours suggest roles, but confirmed customer overrides take precedence. Include lists describe section dependencies; dependent-section execution remains proposed work.</p>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="lg"><span class="chip" style="background:#ECEAE5;color:#16302A">Black</span><h3>Fixed report text</h3><p>Boilerplate that must stay word for word.</p><span class="to">Untouched, proven by readback</span></div>
+      <div class="lg"><span class="chip" style="background:#E5F1E4;color:#2F7A33">Green · Grey</span><h3>Study parameters</h3><p>Compound, species, doses, author, study number.</p><span class="to">Known values</span></div>
+      <div class="lg"><span class="chip" style="background:#E3ECF7;color:#1F5FA8">Blue</span><h3>Decision logic</h3><p>"If a report is present", "if no compound-related findings".</p><span class="to">Explicit rules; uncertain evidence goes to review</span></div>
+      <div class="lg"><span class="chip" style="background:#FBE5E3;color:#B3261E">Red</span><h3>AI instructions</h3><p>Copy verbatim, summarise, convert tense.</p><span class="to">Copy or validated draft</span></div>
+      <div class="lg"><span class="chip" style="background:#EFE7F6;color:#6A3A9A">Purple</span><h3>Local parameters</h3><p>Compound code, vehicle or diluent in one paragraph.</p><span class="to">Known values</span></div>
+      <div class="lg"><span class="chip" style="background:#FBF0DA;color:#8A5A0B">Orange · Yellow font</span><h3>Tables and figures</h3><p>Supported tables are copied and checked. Figure export is not in the current runtime.</p><span class="to">Do not imply all media types are supported</span></div>
+      <div class="lg"><span class="chip" style="background:#E8F7C8;color:#3E6B0C">Highlights</span><h3>Review the instruction</h3><p>Green: manual completion; yellow: writer guidance. For Summary, follow red text and ignore green highlighting.</p><span class="to">Approved task-specific overrides apply</span></div>
+      <div class="lg"><span class="chip" style="background:#F1F0EC;color:#16302A">{[&lt; … **Include &gt;]}</span><h3>Section dependencies</h3><p>Which drafted sections each section may read.</p><span class="to">Order of dependent sections</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt" id="architecture">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="num">02</div>
+      <div>
+        <div class="eyebrow">End-to-end flow</div>
+        <h2>From study PDFs to a cited review copy</h2>
+        <p>The existing local PoC plans, approves eligible evidence, drafts supported tasks and renders a review copy. Contract assistance, Search fallback and a critic are proposed additions, followed by dependent-section drafting.</p>
+      </div>
+    </div>
+    <div class="pipe">
+      <div class="stage">
+        <span class="k">Stage 1</span>
+        <h3>Study sources</h3>
+        <ul><li>Protocol and amendments</li><li>Contributing and external reports</li><li>Tox tables, QA statements</li><li>Scans need OCR and review</li></ul>
+        <div class="svc"><span>Blob Storage</span></div>
+      </div>
+      <div class="stage">
+        <span class="k">Stage 2</span>
+        <h3>Ingest and evidence gate</h3>
+        <ul><li>Retain raw extraction and page provenance</li><li>One search record per page</li><li>Reported 77–82% text-layer confirmation on two studies</li><li>Unconfirmed pages go to review</li></ul>
+        <div class="svc"><span>Content Understanding</span><span>AI Search</span></div>
+      </div>
+      <div class="stage">
+        <span class="k">Stage 3</span>
+        <h3>Task contract and planner</h3>
+        <ul><li>Reviewed contract per template version</li><li>Documents classified by title page</li><li>Locate rules select the pages per task</li><li>Paid runs need a call limit</li></ul>
+        <div class="svc"><span>Task contract</span><span>Agent Framework</span></div>
+      </div>
+      <div class="stage exec">
+        <span class="k">Stage 4</span>
+        <h3>Executors</h3>
+        <div class="split">
+          <div class="lane code"><b>Code</b>Known values and supported tables; deterministic verbatim copy is next work</div>
+          <div class="lane code"><b>Drafting</b>GPT-5.2 from approved evidence, validated</div>
+          <div class="lane agent"><b>Proposed agents</b>Search fallback, critic, dependent sections</div>
+          <div class="lane human"><b>Study director</b>Judgement sections and author items</div>
+        </div>
+        <div class="svc"><span>Foundry</span></div>
+      </div>
+      <div class="stage">
+        <span class="k">Stage 5</span>
+        <h3>Review copy</h3>
+        <ul><li>Only targeted blocks are replaced</li><li>Every statement cited to a source page</li><li>Missing facts become green author items</li><li>Source manifest and run report</li></ul>
+        <div class="svc"><span>Word renderer</span></div>
+      </div>
+    </div>
+    <p class="note">5,000 pages is the design target, not a measured run. The supplied findings report a largest source PDF of 158 pages and no processed 5,000-page document. The 785-page timing is a package-level extraction result, not a single-file or end-to-end benchmark. Cost and throughput at target scale still need testing.</p>
+  </div>
+</section>
+
+<section class="sec" id="routing">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="num">03</div>
+      <div>
+        <div class="eyebrow">Routing</div>
+        <h2>The right engine for each instruction</h2>
+        <p>Routing combines confirmed answers from 11 November with explicitly proposed improvements. Judgement stays with the study director; unknown facts do not become automatic decisions.</p>
+      </div>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Template instruction</th><th>Engine</th><th>How it is done</th></tr></thead>
+        <tbody>
+          <tr><td>Fixed text, boilerplate tables</td><td><span class="pill p-code">Code</span></td><td>Left untouched; the renderer proves byte-identical readback</td></tr>
+          <tr><td>Cover page, QA values, study parameters</td><td><span class="pill p-code">Code</span></td><td>Known values filled from approved evidence</td></tr>
+          <tr><td>Report conclusions copied verbatim (TK and others)</td><td><span class="pill p-code">Code · proposed</span></td><td>Add deterministic copy with a completeness check. The current PoC still uses model-based copying.</td></tr>
+          <tr><td>Ophthalmology standard sentence</td><td><span class="pill p-code">Confirmed rule</span></td><td>If the report states no compound-related findings, use only the standard sentence with the compound code. Extension to ECG, neurology, biomarkers and immunophenotyping remains unconfirmed.</td></tr>
+          <tr><td>Archival statements</td><td><span class="pill p-code">Code</span></td><td>Copy the protocol statement only when an external report has none; otherwise add nothing</td></tr>
+          <tr><td>Appendix numbering</td><td><span class="pill p-code">Code</span></td><td>Fixed order 1–6, pathology last; study-dependent appendices become author items</td></tr>
+          <tr><td>Text sections (purpose, methods, organ weights)</td><td><span class="pill p-agent">Validated draft</span></td><td>GPT-5.2 quotes approved evidence exactly; numbers must appear in the quotes; one corrective retry</td></tr>
+          <tr><td>Body weights, physical exams, clinical pathology</td><td><span class="pill p-human">Study director</span></td><td>Author-only Results tasks. SEND Explorer assistance is a possibility, not approved automation.</td></tr>
+          <tr><td>GLP impact statements</td><td><span class="pill p-human">Study director</span></td><td>Author item</td></tr>
+          <tr><td>Summary and Conclusion</td><td><span class="pill p-agent">Agent · proposed</span></td><td>Draft only from approved sections in the Include list; Summary follows red instructions. Contents and references are built by code.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt" id="agents">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="num">04</div>
+      <div>
+        <div class="eyebrow">Agents at defined points</div>
+        <h2>Agents decide, tools execute</h2>
+        <p>Proposed roles, not deployed agents. Runtime drafting uses approved evidence; the Search agent may inspect authorized candidate pages but cannot approve them. Tool names below describe proposed interfaces.</p>
+      </div>
+    </div>
+    <div class="agents">
+      <div class="ag"><span class="role">Design time</span><h3>Contract authoring agent</h3><p>Reads a new template version and its colour legend and proposes the task contract: blocks per task, where evidence is found, how it is written. A person reviews it before use.</p><div class="tools"><code>template_mapping</code> <code>contract_schema</code> <code>validate_contract</code></div></div>
+      <div class="ag"><span class="role">When rules find nothing</span><h3>Search fallback agent</h3><p>For unknown document families or sections without a predictable heading, it searches the page index, checks the document and heading, and proposes evidence for approval.</p><div class="tools"><code>search_pages</code> <code>get_evidence</code> <code>propose_evidence</code></div></div>
+      <div class="ag"><span class="role">After every draft</span><h3>Critic agent</h3><p>Checks form, completeness, tense and exclusions. Findings share the existing one-retry and call budget, then become an author item; no extra unbounded retry loop.</p><div class="tools"><code>template_rules</code> <code>validate_draft</code> <code>redraft_task</code></div></div>
+      <div class="ag"><span class="role">Dependent sections</span><h3>Dependent-sections agent</h3><p>Drafts Summary and Conclusion only from approved sections in each Include list. Code builds contents and references. Source changes invalidate dependent drafts.</p><div class="tools"><code>approved_sections</code> <code>known_values</code> <code>validate_draft</code></div></div>
+      <div class="ag"><span class="role">Deterministic core</span><h3>Planner and tools</h3><p>Keep classification rules, locate rules, known values, supported table copying and rendering in code. Add deterministic verbatim copying with completeness checks next.</p><div class="tools"><code>evidence_planner</code> <code>table_copy</code> <code>renderer</code></div></div>
+      <div class="ag human"><span class="role">Author of record</span><h3>Study director</h3><p>Writes judgement sections, resolves author items and approves evidence and drafts. Final signing stays in the approved document management system.</p><div class="tools">Reviewer interface and approval workflow require cloud implementation</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="orchestration">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="num">05</div>
+      <div>
+        <div class="eyebrow">Orchestration</div>
+        <h2>A fixed workflow with judgement inside each step</h2>
+        <p>Proposed hosting: Azure Container Apps with Microsoft Agent Framework and tracing. Microsoft Foundry supplies the drafting and agent models; an adapted Foundry hosted agent is another runtime option. Neither runtime is deployed for this design.</p>
+      </div>
+    </div>
+    <div class="flow">
+      <div class="fs"><div class="bar"></div><span class="pt">Sequential</span><h3>Plan the study</h3><p>Extract, gate evidence, classify documents and locate pages for every task.</p></div>
+      <div class="fs agent-step"><div class="bar"></div><span class="pt">Fallback</span><h3>Fill evidence gaps</h3><p>Search fallback proposes authorized candidates; evidence gate checks and human review apply before use.</p></div>
+      <div class="fs"><div class="bar"></div><span class="pt">Concurrent</span><h3>Draft and copy</h3><p>Known values, tables and parallel drafts run at once within the call limit.</p></div>
+      <div class="fs agent-step"><div class="bar"></div><span class="pt">Maker and checker</span><h3>Critic review</h3><p>Run validators and critic; one shared corrective retry, then author review.</p></div>
+      <div class="fs agent-step"><div class="bar"></div><span class="pt">Sequential</span><h3>Dependent sections, render</h3><p>Summary and Conclusion from approved sections; validate again, then render the Word review copy.</p></div>
+    </div>
+    <div class="callout">
+      <h3>Why not one autonomous agent</h3>
+      <p>Retrieve the pages needed for each task instead of assuming an entire study fits a model's context. A fixed workflow makes evidence, budgets and failures easier to audit. Validators support traceability; they do not guarantee scientific correctness.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt" id="trust">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="num">06</div>
+      <div>
+        <div class="eyebrow">Trust and GxP</div>
+        <h2>Keep evidence and decisions reviewable</h2>
+        <p>Validate evidence checks, approvals and audit records against the agreed requirements. These controls do not establish GxP or 21 CFR compliance on their own.</p>
+      </div>
+    </div>
+    <div class="trust">
+      <div class="tr"><h3>Evidence gate</h3><p>Text-layer confirmation can approve eligible pages; unconfirmed scans need human review. Agreement with an OCR-generated text layer is not independent proof of accuracy.</p></div>
+      <div class="tr"><h3>Exact quotes</h3><p>Every model claim must quote approved evidence exactly, and every number must appear in those quotes. Wrong citations are rejected.</p></div>
+      <div class="tr"><h3>Preserve the template</h3><p>The PoC checks untouched content and targeted output by readback. This is not a guarantee of byte-identical DOCX files or identical visual layout on every page.</p></div>
+      <div class="tr"><h3>Identity and authorization</h3><p>Use Entra authentication, workload identities and study-level authorization. Separate agent identities and acting on behalf of a user require explicit configuration; neither happens automatically.</p></div>
+      <div class="tr"><h3>Final reports stay reference only</h3><p>Finalised reports are used only to measure results, never as extraction, prompt or drafting input.</p></div>
+      <div class="tr"><h3>Unsupported-content checks</h3><p>The repository reports none found in its two-study review, not a guarantee. Missing facts become author items; an unseen study remains necessary to test generality.</p></div>
+    </div>
+    <p class="note">Production adds private endpoints, VNet-integrated compute, document-level authorization in Search, retention policies and logging without document content.</p>
+  </div>
+</section>
+
+<section class="sec" id="decisions">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="num">07</div>
+      <div>
+        <div class="eyebrow">Your answers, 11 November</div>
+        <h2>Decisions applied and points still open</h2>
+        <p>Your answers are built into the task contract. The open points below decide the next changes.</p>
+      </div>
+    </div>
+    <div class="dec">
+      <div class="dcol">
+        <h3>Applied</h3>
+        <div class="di"><span class="id">A1</span><div><b>Summary follows the red text</b><span>Extracted from Results automatically; green summary markers treated as superseded.</span></div></div>
+        <div class="di"><span class="id">A2</span><div><b>Archival statements</b><span>Protocol statement copied only when an external report has none.</span></div></div>
+        <div class="di"><span class="id">A3</span><div><b>Green Results tables stay with the study director</b><span>Body weights, physical exams and clinical pathology removed from automation.</span></div></div>
+        <div class="di"><span class="id">A6</span><div><b>Ophthalmology standard sentence</b><span>Used alone when the report states no compound-related findings.</span></div></div>
+        <div class="di"><span class="id">A9</span><div><b>QA statements</b><span>Later findings report QA table copying in both studies. Validate this existing path on new inputs.</span></div></div>
+        <div class="di"><span class="id">A12</span><div><b>Appendix order</b><span>Protocol, deviations, CoA, DFA, bioanalytical, TK; pathology always last.</span></div></div>
+      </div>
+      <div class="dcol open">
+        <h3>Open</h3>
+        <div class="di"><span class="id">A</span><div><b>Missing DFA source</b><span>The affected section waits for the upload.</span></div></div>
+        <div class="di"><span class="id">B</span><div><b>Test item paragraph colours</b><span>Recolour the red "if" text to blue in the template, or we add an override.</span></div></div>
+        <div class="di"><span class="id">C</span><div><b>Time KPI</b><span>Does today's Docling time cover extraction only, or the full report with review?</span></div></div>
+        <div class="di"><span class="id">D</span><div><b>Standard sentence elsewhere</b><span>Apply the A6 rule to ECG, neurology, biomarkers and immunophenotyping?</span></div></div>
+        <div class="di"><span class="id">E</span><div><b>External reports</b><span>Is the ophthalmology consultant letter in scope?</span></div></div>
+        <div class="di"><span class="id">F</span><div><b>Green summary markers</b><span>Remove them from the output once the Summary is drafted?</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt" id="roadmap">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="num">08</div>
+      <div>
+        <div class="eyebrow">Path to production</div>
+        <h2>Four steps to production readiness</h2>
+        <p>Each step is measured against the finalised reference reports before the next one starts.</p>
+      </div>
+    </div>
+    <div class="road">
+      <div class="ph now"><span class="w">Step 1 · Next</span><h3>Deterministic coverage</h3><ul><li>Verbatim sections with completeness checks</li><li>Remaining personnel, Table 2.1 and data-system tables; extend existing QA copying</li><li>In-scope study design, mortality and clinical signs evidence</li></ul></div>
+      <div class="ph"><span class="w">Step 2</span><h3>Critic and dependent sections</h3><ul><li>Critic agent on every draft</li><li>Agent-drafted Summary and Conclusion; code-generated contents and references</li></ul></div>
+      <div class="ph"><span class="w">Step 3</span><h3>Fallback and blind test</h3><ul><li>Search fallback agent for unknown document families</li><li>Blind run on a third, unseen study package</li></ul></div>
+      <div class="ph"><span class="w">Step 4</span><h3>Production hosting</h3><ul><li>Container Apps workflow, managed identity, private networking</li><li>Reviewer UI for author items and approvals</li><li>Contract authoring agent for new templates</li></ul></div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer>
+  <div class="wrap">
+    <div><b>Review copy, not a final report.</b> The study director remains the author of record and signs in the document management system.</div>
+    <div>Microsoft Foundry · Azure · GLP Tox v11<br>Customer review · 12 November 2026. Reported pilot results are not independently reproduced; proposed capabilities require implementation and validation.<br><a href="index.html">Solution overview</a> · <a href="agentic.html">Simple agentic approach</a></div>
+  </div>
+</footer>
+
+</body>
+</html>

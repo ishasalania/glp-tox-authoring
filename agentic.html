@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="An Azure solution for traceable GLP toxicology report authoring, combining focused AI agents, deterministic tools and human approval.">
+  <title>GiniDocs | Agentic approach on Azure</title>
+  <style>
+    :root { color-scheme:light; --forest:#103f38; --green:#007d69; --ink:#173d36; --muted:#526c66; --paper:#eeece5; --wash:#f6f7f3; --line:#d7e1dc; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:white; font:16px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    a { color:var(--green); text-underline-offset:4px; }
+    a:focus-visible,summary:focus-visible { outline:3px solid var(--green); outline-offset:5px; }
+    .wrap { max-width:1100px; padding:0 36px; margin:auto; }
+    .skip { position:absolute; top:-100px; background:white; padding:16px; }
+    .skip:focus { top:0; }
+    .masthead { border-bottom:1px solid var(--line); }
+    .masthead .wrap { min-height:80px; display:flex; justify-content:space-between; align-items:center; gap:20px; }
+    .brand { color:var(--forest); text-decoration:none; font-size:20px; font-weight:750; letter-spacing:-.04em; }
+    nav { display:flex; flex-wrap:wrap; gap:24px; }
+    nav a { font-size:13px; font-weight:600; text-decoration:none; color:var(--muted); }
+    nav a[aria-current] { color:var(--green); }
+    header { background:var(--paper); padding:60px 0; }
+    .eyebrow { font-size:11px; font-weight:750; letter-spacing:.12em; text-transform:uppercase; color:var(--green); margin:0 0 16px; }
+    h1 { font-size:clamp(34px,4.7vw,54px); letter-spacing:-.04em; line-height:1.12; margin:0 0 22px; font-weight:680; }
+    h1 span { color:var(--green); }
+    .lead { max-width:730px; color:var(--muted); margin:0; }
+    section { padding:44px 0; border-bottom:1px solid var(--line); }
+    h2 { font-size:27px; letter-spacing:-.03em; line-height:1.25; margin:0 0 20px; font-weight:650; }
+    h3 { font-size:18px; margin:10px 0; }
+    p { margin:0 0 16px; }
+    .flow { display:flex; flex-wrap:wrap; gap:10px; align-items:center; background:var(--forest); color:white; padding:22px; border-radius:8px; margin-top:22px; }
+    .flow strong { font-size:13px; font-weight:600; }
+    .flow span { color:#b3cbc2; }
+    .agents,.roles { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+    .card { border:1px solid var(--line); border-top:3px solid var(--green); border-radius:7px; padding:24px; }
+    .card p { font-size:14px; color:var(--muted); margin:0; }
+    .number { color:var(--green); font-size:11px; font-weight:750; }
+    .tools { margin-top:18px; padding-top:14px; border-top:1px solid var(--line); font-size:11px; color:var(--muted); }
+    code { background:var(--wash); color:var(--forest); padding:2px 5px; border-radius:3px; display:inline-block; margin:2px 0; overflow-wrap:anywhere; }
+    .roles { margin-top:20px; }
+    .roles .card { border-top:1px solid var(--line); }
+    .roles .human { background:var(--forest); border-color:var(--forest); color:white; }
+    .human p { color:#d5e5dd; }
+    .human .number { color:#edbd8a; }
+    .workflow { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:18px; list-style:none; padding:0; margin:24px 0 0; }
+    .workflow li { border-top:3px solid #bdcfc4; padding-top:16px; }
+    .workflow h3 { font-size:16px; line-height:1.35; }
+    .workflow p { font-size:13px; margin:0; }
+    .workflow small { color:var(--green); font-size:10px; text-transform:uppercase; letter-spacing:.06em; font-weight:750; }
+    .roadmap { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:18px; margin-top:26px; }
+    .roadmap .card { border-top:1px solid var(--line); padding:22px; }
+    .roadmap .next { border:2px solid var(--green); }
+    .roadmap h3 { font-size:17px; }
+    .roadmap li { font-size:13px; }
+    .roadmap ul { padding-left:17px; }
+    .wash { background:var(--wash); }
+    .table-scroll { overflow-x:auto; border:1px solid var(--line); border-radius:8px; background:white; }
+    table { border-collapse:collapse; width:100%; min-width:520px; text-align:left; font-size:14px; }
+    th,td { padding:15px 20px; border-bottom:1px solid var(--line); vertical-align:top; }
+    thead { background:#e9efea; }
+    tbody tr:last-child th,tbody tr:last-child td { border-bottom:0; }
+    tbody th { width:38%; font-weight:650; }
+    td { color:var(--muted); }
+    .small { font-size:12px; color:var(--muted); }
+    .note { border-left:3px solid var(--green); padding:14px 18px; background:var(--wash); margin:22px 0 0; font-size:14px; }
+    ul { padding-left:20px; margin:0; }
+    li { margin-bottom:10px; color:var(--muted); font-size:14px; }
+    details { margin-top:22px; border-top:1px solid var(--line); padding-top:16px; }
+    summary { cursor:pointer; font-size:13px; font-weight:650; }
+    details p { font-size:13px; color:var(--muted); margin:12px 0 0; }
+    footer { padding:26px 0; }
+    footer p { font-size:11px; color:var(--muted); margin:12px 0 0; }
+    footer a { font-size:12px; }
+    @media(max-width:900px) { .workflow,.roadmap { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media(max-width:700px) { .wrap { padding:0 22px; } .agents,.roles,.workflow,.roadmap { grid-template-columns:1fr; } .masthead .wrap { flex-wrap:wrap; padding-top:18px; padding-bottom:18px; gap:12px; } nav { gap:18px; } header { padding:40px 0; } section { padding:34px 0; } h2 { font-size:25px; } .flow { gap:8px; } }
+    @media print { header,section { padding:22px 0; } nav,.skip { display:none; } .card,.flow { break-inside:avoid; } .table-scroll { overflow:visible; } table { min-width:0; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="masthead"><div class="wrap">
+    <a class="brand" href="index.html">GiniDocs</a>
+    <nav aria-label="Main navigation"><a href="index.html">Overview</a><a href="architecture.html">Architecture</a><a href="agentic.html" aria-current="page">Agentic approach</a></nav>
+  </div></div>
+  <header><div class="wrap">
+    <p class="eyebrow">Proposed approach / Microsoft Azure</p>
+    <h1>From study evidence.<br><span>To review-ready reports.</span></h1>
+    <p class="lead">Populate the GLP toxicology Word template from study documents. Use focused AI agents for language tasks, code for verifiable operations and the study director for scientific judgment and approval.</p>
+  </div></header>
+  <main id="main">
+    <section><div class="wrap">
+      <h2>1. One evidence-led authoring workflow</h2>
+      <p class="lead">Extract source text and tables, confirm the evidence, then populate approved template sections. Every generated statement needs source support; missing information becomes an author item, not a guess.</p>
+      <div class="flow" aria-label="Proposed authoring workflow"><strong>Extract documents</strong><span aria-hidden="true">&rarr;</span><strong>Check evidence</strong><span aria-hidden="true">&rarr;</span><strong>Draft &amp; validate</strong><span aria-hidden="true">&rarr;</span><strong>Review &amp; export Word</strong></div>
+    </div></section>
+    <section><div class="wrap">
+      <h2>2. Agents decide. Tools execute.</h2>
+      <p class="lead" style="margin-bottom:24px">Use agents where fixed rules need help. They propose actions or draft text from approved context; code checks the results. Tool names below are proposed interfaces, not deployed integrations.</p>
+      <div class="agents">
+        <article class="card"><span class="number">DESIGN TIME</span><h3>Contract authoring agent</h3><p>Read a new template and its colour legend. Propose tasks, evidence rules and writing instructions. A person reviews the contract before use.</p><div class="tools">Tools: <code>template_mapping</code> <code>contract_schema</code> <code>validate_contract</code></div></article>
+        <article class="card"><span class="number">WHEN RULES FIND NOTHING</span><h3>Search fallback agent</h3><p>Search the authorized study's page index when headings or document types are unfamiliar. Propose evidence for gate checks and human approval; never approve it itself.</p><div class="tools">Tools: <code>search_pages</code> <code>get_evidence</code> <code>propose_evidence</code></div></article>
+        <article class="card"><span class="number">AFTER EACH DRAFT</span><h3>Critic agent</h3><p>Check completeness, tense, standard sentences and excluded content. Return exact findings for one corrective retry within the shared call limit, then flag an author item.</p><div class="tools">Tools: <code>template_rules</code> <code>validate_draft</code> <code>redraft_task</code></div></article>
+        <article class="card"><span class="number">AFTER SECTION APPROVAL</span><h3>Dependent-sections agent</h3><p>Draft Summary and Conclusion only from approved sections in each Include list. Code builds contents and references. Changed inputs invalidate dependent drafts.</p><div class="tools">Tools: <code>approved_sections</code> <code>known_values</code> <code>validate_draft</code></div></article>
+      </div>
+      <div class="roles">
+        <article class="card"><span class="number">DETERMINISTIC CORE</span><h3>Planner and tools</h3><p>Keep classification rules, evidence locations, known values, table copying and rendering in code. Agents call these tools; they do not replace them.</p><div class="tools">Core: <code>evidence_planner</code> <code>table_copy</code> <code>renderer</code></div></article>
+        <article class="card human"><span class="number">AUTHOR OF RECORD</span><h3>Study director</h3><p>Write judgment-based sections, resolve author items and approve uncertain evidence and drafts. Final signing stays in the approved document system, not the agent workflow.</p></article>
+      </div>
+      <p class="note"><strong>Code stays in control.</strong> Use deterministic tools for in-scope table copying, calculations, citation checks and Word formatting. Exact-copy completeness checks must be implemented and validated before verbatim sections are accepted.</p>
+    </div></section>
+    <section class="wash"><div class="wrap">
+      <h2>3. Follow a fixed workflow</h2>
+      <p class="lead">Use Microsoft Agent Framework for orchestration, with tracing for tool and model calls. Proposed hosting: Azure Container Apps, or an adapted Foundry hosted agent.</p>
+      <ol class="workflow">
+        <li><small>01 / Sequential</small><h3>Plan the study</h3><p>Extract, check evidence, classify documents and locate source pages for each task.</p></li>
+        <li><small>02 / Fallback</small><h3>Fill evidence gaps</h3><p>Search only when rules find nothing. Check and approve proposed evidence before use.</p></li>
+        <li><small>03 / Concurrent</small><h3>Draft and copy</h3><p>Run independent drafts, values and table tasks within the shared call limit.</p></li>
+        <li><small>04 / Check</small><h3>Review the drafts</h3><p>Run validators and the critic. Allow one bounded corrective retry, then author review.</p></li>
+        <li><small>05 / Sequential</small><h3>Combine and render</h3><p>Build dependent sections from approved inputs, validate again and produce the Word review copy.</p></li>
+      </ol>
+      <p class="note"><strong>Why not one autonomous agent?</strong> Bounded steps make evidence selection, decisions and failures easier to audit. Retrieve the pages needed for each task instead of sending entire study packages to a model.</p>
+    </div></section>
+    <section class="wash"><div class="wrap">
+      <h2>4. Use Azure for the right job</h2>
+      <div class="table-scroll"><table>
+        <thead><tr><th scope="col">Azure service</th><th scope="col">What it does</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Blob Storage</th><td>Keep source documents and generated drafts in private storage.</td></tr>
+          <tr><th scope="row">Content Understanding</th><td>Extract text, tables and document structure from PDFs.</td></tr>
+          <tr><th scope="row">Microsoft Foundry</th><td>Provide model deployments for drafting and agent reasoning; optionally host an adapted agent workflow.</td></tr>
+          <tr><th scope="row">Azure AI Search</th><td>Find source pages when deterministic retrieval rules need a fallback.</td></tr>
+          <tr><th scope="row">Container Apps</th><td>Host the fixed Agent Framework workflow and authenticated review API or UI.</td></tr>
+          <tr><th scope="row">Entra ID &amp; Application Insights</th><td>Control access and monitor runs, failures and model calls without logging document content.</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small" style="margin:16px 0 0">These are proposed service roles, not a deployed system. Confirm subscription, regional availability, permissions and costs before provisioning.</p>
+    </div></section>
+    <section><div class="wrap">
+      <h2>5. Keep the author in control</h2>
+      <ul>
+        <li>Body-weight, physical-exam and clinical-pathology Results tables stay author-only. GLP impact statements come from the study director.</li>
+        <li>Follow confirmed customer rules: for Summary, red instructions override green highlighting. Copy the protocol archival statement only when an in-scope external report has none; otherwise add nothing.</li>
+        <li>Missing sources or unresolved rules block the affected task. Final reports are comparison references, never generation inputs.</li>
+      </ul>
+      <p class="note"><strong>Start small:</strong> strengthen the existing checks, pilot the draft-review agent, then test evidence search on an unseen study. Measure accuracy, cost and author review time before expanding.</p>
+      <details><summary>Decisions still needed</summary><p>Confirm the test-item colour override, external-report scope, standard sentences beyond ophthalmology, removal of green Summary markers and the definition of the Docling timing baseline. The missing DFA source must be uploaded before its affected section can run.</p></details>
+    </div></section>
+    <section class="wash"><div class="wrap">
+      <p class="eyebrow">Path to production</p>
+      <h2>Four steps to production readiness</h2>
+      <p class="lead">Validate each step before expanding. Use finalized reports as comparison references only, never as agent inputs.</p>
+      <div class="roadmap">
+        <article class="card next"><span class="number">STEP 1 / NEXT</span><h3>Deterministic coverage</h3><ul><li>Verbatim copying with completeness checks.</li><li>Remaining personnel, Table 2.1 and data-system tables; extend and retest existing QA copying.</li><li>In-scope study-design, mortality and clinical-signs evidence.</li></ul></article>
+        <article class="card"><span class="number">STEP 2</span><h3>Critic and dependent sections</h3><ul><li>Check each draft against its instructions.</li><li>Draft Summary and Conclusion from approved sections.</li><li>Build contents and references with code.</li></ul></article>
+        <article class="card"><span class="number">STEP 3</span><h3>Fallback and blind test</h3><ul><li>Find evidence in unfamiliar document families.</li><li>Run on a third, unseen study package.</li><li>Measure missed evidence, false matches and review effort.</li></ul></article>
+        <article class="card"><span class="number">STEP 4</span><h3>Production hosting</h3><ul><li>Container Apps workflow, managed identity and private networking.</li><li>Reviewer interface for author items and approvals.</li><li>Contract authoring agent for new templates.</li></ul></article>
+      </div>
+      <p class="small" style="margin:18px 0 0">Release gates: agreed accuracy and completeness, no evidence-gate bypass, successful unseen-study testing, then operational and quality-team approval. Scope and acceptance criteria are agreed before each phase.</p>
+    </div></section>
+  </main>
+  <footer><div class="wrap">
+    <a href="index.html">Back to solution overview</a>
+    <p>GLP toxicology report authoring &middot; Proposed Azure architecture &middot; Customer review, 12 November 2026. The target workflow is not yet deployed. Final approval and signing remain in the approved document process.</p>
+  </div></footer>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="A proposed Microsoft Foundry architecture for evidence-led study report authoring, with deterministic validation and human approval.">
+  <title>GiniDocs | Evidence-led document authoring</title>
+  <style>
+    :root { color-scheme:light; --forest:#103f38; --green:#007d69; --ink:#173d36; --muted:#526c66; --paper:#eeece5; --wash:#f6f7f3; --line:#d7e1dc; --white:#fff; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; scroll-padding-top:100px; }
+    body { margin:0; color:var(--ink); background:var(--white); font:15px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    a { color:var(--green); text-underline-offset:4px; }
+    a:focus-visible,summary:focus-visible { outline:3px solid var(--green); outline-offset:5px; }
+    .wrap { max-width:1180px; padding:0 40px; margin:auto; }
+    .skip { position:absolute; top:-100px; padding:16px; background:white; z-index:5; }
+    .skip:focus { top:0; }
+    .masthead { background:white; border-bottom:1px solid var(--line); }
+    .masthead .wrap { min-height:84px; display:flex; align-items:center; justify-content:space-between; gap:24px; }
+    .brand { display:flex; align-items:center; gap:13px; color:var(--forest); text-decoration:none; }
+    .mark { width:32px; height:36px; border:2px solid var(--green); border-radius:4px 11px 4px 4px; display:grid; align-content:center; gap:4px; padding:7px; }
+    .mark i { display:block; height:2px; background:var(--green); }
+    .brand strong { display:block; font-size:19px; letter-spacing:-.04em; line-height:1.2; }
+    .brand small { font-size:10px; text-transform:uppercase; letter-spacing:.13em; color:var(--muted); }
+    nav { display:flex; align-items:center; gap:26px; }
+    nav a { font-size:12px; font-weight:650; color:var(--muted); text-decoration:none; padding:10px 0; }
+    nav a:hover { color:var(--green); }
+    .pill { font-size:10px; letter-spacing:.08em; text-transform:uppercase; font-weight:750; padding:6px 10px; border:1px solid var(--line); border-radius:20px; white-space:nowrap; }
+    .hero { background:var(--paper); padding:74px 0 64px; }
+    .hero-grid { display:grid; grid-template-columns:1.2fr 1fr; gap:65px; align-items:center; }
+    .eyebrow { font-size:10px; font-weight:750; letter-spacing:.14em; text-transform:uppercase; color:var(--green); margin:0 0 18px; }
+    h1 { font-size:clamp(38px,4.6vw,58px); letter-spacing:-.045em; line-height:1.08; margin:0 0 24px; font-weight:680; }
+    h1 span { color:var(--green); }
+    .hero p:not(.eyebrow) { color:var(--muted); max-width:530px; margin:0 0 28px; }
+    .actions { display:flex; gap:12px; flex-wrap:wrap; }
+    .button { display:inline-flex; align-items:center; gap:18px; background:var(--forest); color:white; border:1px solid var(--forest); border-radius:24px; padding:11px 19px; text-decoration:none; font-size:12px; font-weight:650; }
+    .button.secondary { background:white; color:var(--forest); border-color:var(--line); }
+    .preview { position:relative; border:1px solid #d5ddd6; border-radius:12px; background:#fafbf8; padding:25px; box-shadow:0 16px 42px #143f3610; }
+    .preview-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; gap:10px; }
+    .preview-top strong { font-size:12px; }
+    .dot { width:7px; height:7px; border-radius:50%; display:inline-block; background:var(--green); margin-right:6px; }
+    .preview-line { display:flex; align-items:center; gap:12px; padding:15px 0; border-top:1px solid var(--line); }
+    .preview-line .number { display:grid; place-items:center; width:30px; height:30px; flex-shrink:0; border-radius:50%; background:#e4eee6; color:var(--green); font-size:11px; font-weight:700; }
+    .preview-line strong { display:block; font-size:13px; }
+    .preview-line small { display:block; font-size:11px; color:var(--muted); }
+    .preview-note { background:var(--forest); color:white; padding:13px 15px; border-radius:6px; font-size:11px; margin-top:10px; }
+    .principles { background:var(--forest); color:white; }
+    .principles .wrap { display:grid; grid-template-columns:repeat(4,1fr); padding-top:25px; padding-bottom:25px; }
+    .principles div div { padding:0 22px; border-left:1px solid #ffffff30; }
+    .principles div div:first-child { padding-left:0; border:0; }
+    .principles small { color:#b3cbc2; display:block; font-size:9px; text-transform:uppercase; letter-spacing:.1em; margin-bottom:4px; }
+    .principles strong { font-size:12px; font-weight:600; }
+    section { padding:65px 0; border-bottom:1px solid var(--line); }
+    h2 { font-size:32px; letter-spacing:-.035em; line-height:1.2; margin:0 0 15px; font-weight:650; }
+    h3 { font-size:17px; line-height:1.4; letter-spacing:-.02em; margin:10px 0; }
+    p { margin:0 0 16px; }
+    .lead { max-width:740px; color:var(--muted); margin-bottom:30px; }
+    .architecture { border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+    .arch-header { background:var(--wash); padding:16px 24px; display:flex; justify-content:space-between; gap:15px; font-size:11px; border-bottom:1px solid var(--line); }
+    .flow { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:20px; padding:30px 24px; }
+    .node { position:relative; }
+    .node:not(:last-child)::after { content:"\2192"; position:absolute; right:-15px; top:32px; color:#7c9b8b; }
+    .node .number { font-size:10px; font-weight:750; color:var(--green); letter-spacing:.1em; }
+    .node h3 { font-size:14px; margin:8px 0; }
+    .node p { font-size:11px; color:var(--muted); margin:0; }
+    .service { display:block; font-size:10px; margin-top:13px; font-weight:650; }
+    .foundation { background:var(--forest); color:#e4efea; padding:13px 24px; font-size:11px; }
+    .gates { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:18px; }
+    .gate { display:flex; gap:15px; align-items:flex-start; background:var(--wash); padding:20px; border:1px solid var(--line); border-radius:6px; font-size:12px; }
+    .gate b { color:var(--green); font-size:18px; line-height:1.5; }
+    .gate strong { display:block; margin-bottom:4px; }
+    .gate p { color:var(--muted); margin:0; }
+    .three { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
+    .card { padding:25px; border:1px solid var(--line); border-radius:8px; }
+    .card .eyebrow { font-size:9px; margin-bottom:16px; }
+    .card p,.card li { font-size:12px; color:var(--muted); }
+    ul { padding-left:18px; margin:15px 0 0; }
+    li { margin-bottom:8px; }
+    .accent { border-top:3px solid var(--green); }
+    .muted-section { background:var(--wash); }
+    .routing { margin-top:24px; border:1px solid var(--line); border-radius:8px; background:white; }
+    details + details { border-top:1px solid var(--line); }
+    summary { padding:18px 22px; cursor:pointer; font-size:13px; font-weight:650; }
+    .detail { padding:0 22px 22px; color:var(--muted); font-size:12px; }
+    .table-scroll { overflow:auto; }
+    table { border-collapse:collapse; width:100%; min-width:540px; text-align:left; font-size:12px; }
+    th,td { border-bottom:1px solid var(--line); padding:12px 10px; vertical-align:top; }
+    th { color:var(--forest); font-weight:650; }
+    .small { font-size:11px; color:var(--muted); }
+    .timeline { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:22px; margin-top:30px; }
+    .phase { border-top:2px solid var(--green); padding-top:18px; }
+    .phase small { color:var(--green); text-transform:uppercase; letter-spacing:.08em; font-weight:700; font-size:9px; }
+    .phase h3 { font-size:15px; }
+    .phase p { font-size:12px; color:var(--muted); }
+    .note { margin-top:26px; padding:16px 20px; border-left:3px solid var(--green); background:var(--wash); font-size:12px; color:var(--muted); }
+    footer { padding:28px 0; }
+    footer .wrap { display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+    footer p,footer a { font-size:10px; color:var(--muted); }
+    footer p { max-width:630px; margin:0; }
+    @media(max-width:900px) { .hero-grid { gap:28px; } .wrap { padding-left:24px; padding-right:24px; } nav { gap:15px; } .flow { grid-template-columns:1fr; gap:25px; } .node:not(:last-child)::after { content:"\2193"; left:0; right:auto; top:auto; bottom:-22px; } .service { margin-top:5px; } }
+    @media(max-width:650px) { html { scroll-padding-top:20px; } .masthead .wrap { flex-wrap:wrap; padding-top:18px; padding-bottom:14px; gap:12px; } nav { width:100%; justify-content:space-between; } nav a { font-size:11px; } nav .pill { display:none; } .hero { padding:45px 0; } .hero-grid,.three,.gates { grid-template-columns:1fr; } .preview { margin-top:8px; } .principles .wrap,.timeline { grid-template-columns:1fr 1fr; gap:22px; } .principles div div { padding:0; border:0; } section { padding:44px 0; } h2 { font-size:27px; } .arch-header { flex-direction:column; gap:4px; } }
+    @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+    @media print { .hero { padding:25px 0; } nav,.actions,.skip { display:none; } section { padding:24px 0; } .card,.architecture,.gate,.phase { break-inside:avoid; } .preview { box-shadow:none; } .wrap { padding:0 15px; } .hero-grid { gap:25px; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="masthead"><div class="wrap">
+    <a class="brand" href="#home" aria-label="GiniDocs home"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span><span><strong>GiniDocs</strong><small>Document intelligence</small></span></a>
+    <nav aria-label="Main navigation"><a href="architecture.html">Architecture</a><a href="agentic.html">Agentic approach</a><a href="#delivery">Delivery plan</a><span class="pill">Proposed design</span></nav>
+  </div></div>
+  <header id="home" class="hero"><div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow">Microsoft Foundry / study report authoring</p>
+      <h1>Code for precision.<br><span>Agents for writing.</span><br>People for approval.</h1>
+      <p>Turn study documents into a traceable Word review copy. Preserve the template, verify the evidence and keep the study director in control.</p>
+      <div class="actions"><a class="button" href="#architecture">Explore the architecture <span aria-hidden="true">&rarr;</span></a><a class="button secondary" href="#execution">See how it works</a></div>
+    </div>
+    <div class="preview" aria-label="Proposed report authoring workflow">
+      <div class="preview-top"><strong>Evidence-led authoring</strong><span class="small"><span class="dot" aria-hidden="true"></span>Target workflow</span></div>
+      <div class="preview-line"><span class="number">01</span><div><strong>Verified study facts</strong><small>Source documents + approved study setup</small></div></div>
+      <div class="preview-line"><span class="number">02</span><div><strong>Template-driven execution</strong><small>Rules and transforms in code; bounded agent calls</small></div></div>
+      <div class="preview-line"><span class="number">03</span><div><strong>Validated Word draft</strong><small>Evidence links + exceptions + human approval</small></div></div>
+      <div class="preview-note">Nothing is written to the report without passing its required checks.</div>
+    </div>
+  </div></header>
+  <div class="principles"><div class="wrap">
+    <div><small>Extraction</small><strong>Prefer structured source data</strong></div>
+    <div><small>Retrieval</small><strong>Classify first, search as fallback</strong></div>
+    <div><small>Generation</small><strong>Write only from approved evidence</strong></div>
+    <div><small>Output</small><strong>A review copy, not a signed report</strong></div>
+  </div></div>
+  <main id="main">
+    <section id="architecture"><div class="wrap">
+      <p class="eyebrow">01 / Target architecture</p>
+      <h2>One controlled workflow. Evidence at every step.</h2>
+      <p class="lead">A code-first Microsoft Agent Framework workflow, proposed for Foundry hosted agents. Every section follows a reviewed template plan and explicit dependencies.</p>
+      <div class="architecture">
+        <div class="arch-header"><strong>Study package &rarr; reviewed report</strong><span>Proposed Azure services &middot; not yet provisioned</span></div>
+        <div class="flow">
+          <div class="node"><span class="number">01 / INGEST</span><h3>Receive &amp; preserve</h3><p>SharePoint via connector, or Blob upload. Preserve original inputs and start a run.</p><span class="service">Blob Storage &middot; Event Grid</span></div>
+          <div class="node"><span class="number">02 / UNDERSTAND</span><h3>Classify &amp; extract</h3><p>Identify document types, extract protocol facts and ground tables in source pages.</p><span class="service">Content Understanding</span></div>
+          <div class="node"><span class="number">03 / EXECUTE</span><h3>Plan &amp; draft</h3><p>Read the approved fact store. Execute code tools or bounded writer/judge calls.</p><span class="service">Foundry &middot; Agent Framework</span></div>
+          <div class="node"><span class="number">04 / VERIFY</span><h3>Check &amp; approve</h3><p>Validate copied text, numbers, citations and style. Route failures to review.</p><span class="service">Python validators &middot; human gates</span></div>
+          <div class="node"><span class="number">05 / ASSEMBLE</span><h3>Render &amp; review</h3><p>Preserve Word styles and attach provenance. Send approved drafts to the document system.</p><span class="service">Open XML &middot; reviewer interface</span></div>
+        </div>
+        <div class="foundation">Shared foundation: study facts &amp; section state in Cosmos DB &nbsp;/&nbsp; Entra identity &nbsp;/&nbsp; private networking &nbsp;/&nbsp; versioned audit records &amp; Application Insights</div>
+      </div>
+      <div class="gates">
+        <div class="gate"><b aria-hidden="true">A</b><div><strong>Study setup approval</strong><p>A person confirms protocol facts, document classification and unresolved extraction before drafting starts.</p></div></div>
+        <div class="gate"><b aria-hidden="true">B</b><div><strong>Section approval</strong><p>Authors approve contributing sections before Discussion, Conclusion and Summary use them. Corrections invalidate dependent drafts.</p></div></div>
+      </div>
+      <p class="note"><strong>Start at the source.</strong> Request raw Pristima CSV/XML exports before using OCR for numerical tables. Structured exports still need schema, unit and table-identity checks.</p>
+    </div></section>
+    <section id="execution" class="muted-section"><div class="wrap">
+      <p class="eyebrow">02 / Execution model</p>
+      <h2>Not everything needs an agent.</h2>
+      <p class="lead">Deterministic operations stay deterministic. Models handle bounded language tasks; the workflow enforces limits, evidence and approvals.</p>
+      <div class="three">
+        <article class="card"><p class="eyebrow">Deterministic tools</p><h3>Copy. Check. Transform.</h3><p>Preserve fixed text; inject approved facts; evaluate explicit conditions; add deterministic verbatim copying; transform in-scope tables; assemble Word.</p><ul><li>Exact-copy and numeric checks</li><li>Reviewed template compiler</li><li>Judgment-based Results tables stay author-only</li></ul></article>
+        <article class="card accent"><p class="eyebrow">Foundry agents</p><h3>Write. Compare. Explain.</h3><p>A writer drafts from selected evidence and approved sections. A judge returns evidence-backed findings on ambiguous comparisons and draft support.</p><ul><li>Structured, sentence-level citations</li><li>Bounded context and call budgets</li><li>A judge cannot override failed checks</li></ul></article>
+        <article class="card"><p class="eyebrow">Human review</p><h3>Confirm. Resolve. Approve.</h3><p>The study director confirms facts, resolves uncertain sources and approves sections. Manual items remain visible instead of becoming invented content.</p><ul><li>Study and section checkpoints</li><li>Explicit exception queue</li><li>Signing stays in the document system</li></ul></article>
+      </div>
+      <div class="routing">
+        <details><summary>Instruction routing &mdash; what runs where?</summary><div class="detail table-scroll"><table>
+          <thead><tr><th scope="col">Template instruction</th><th scope="col">Executor</th><th scope="col">Required check</th></tr></thead>
+          <tbody>
+            <tr><td>Fixed text, boilerplate, known values</td><td>Open XML + approved fact store</td><td>Untouched-block preservation; value provenance</td></tr>
+            <tr><td>Copy a conclusion verbatim</td><td>Source-span locator + code</td><td>Exact text check; only agreed whitespace normalization</td></tr>
+            <tr><td>Conditions and Include dependencies</td><td>Typed rules + dependency graph</td><td>Unknown facts block execution; missing edges or cycles fail</td></tr>
+            <tr><td>In-scope table transforms</td><td>Open XML + deterministic checks</td><td>Row/column identity and values; author-only Results calculations excluded</td></tr>
+            <tr><td>Archival statement handling</td><td>Presence check + deterministic copy</td><td>For an external report, copy the protocol statement only if its own statement is absent; otherwise add nothing. External-report scope needs confirmation.</td></tr>
+            <tr><td>Tense conversion, Discussion, Summary</td><td>Writer agent</td><td>Citations, numeric support, approved Include scope and style</td></tr>
+            <tr><td>Manual or ambiguous template blocks</td><td>Study director</td><td>No automatic completion</td></tr>
+          </tbody>
+        </table></div></details>
+        <details><summary>Template compiler &mdash; colours become reviewed instructions</summary><div class="detail">Compile the Word template into typed blocks and an approved section plan. Preserve font colours separately from highlights and apply approved, task-specific overrides: for Summary, follow the red instructions and ignore the green highlighting. Whether to delete the green markers from the output remains open. Other conflicts, theme colours and unknown styles require review, never nearest-colour guessing. Move toward explicit Word styles or content controls. Keep customer-specific plans in an approved private repository.</div></details>
+        <details><summary>Evidence and validation &mdash; fail closed, not silently</summary><div class="detail">Classify files and tables before retrieving evidence; uncertain classifications require review. Carry source IDs, physical pages and available grounding through each step. Use AI Search only as a fallback. Validate verbatim text, numeric values and citation presence in code; semantic support still requires model and human review. Pin supported model versions, version prompts and record run configuration. Model-specific settings must be checked rather than assuming every model supports temperature controls.</div></details>
+        <details><summary>Review experience &mdash; Word first, add-in later</summary><div class="detail">Start with an editable Word review copy and source manifest. A proposed Office.js add-in can later expose source inspection, section regeneration and approval through an authenticated API on Container Apps behind API Management. Tracked-change reruns require explicit implementation and validation; they are not an existing feature.</div></details>
+        <details><summary>Design principle &mdash; evidence first</summary><div class="detail">The solution addresses the GLP toxicology authoring workflow through reviewed template contracts, approved evidence, deterministic tools and bounded AI drafting. Validation and Word preservation remain code-enforced. Cloud orchestration, reviewer access and expanded task coverage require implementation and acceptance testing.</div></details>
+      </div>
+    </div></section>
+    <section id="delivery"><div class="wrap">
+      <p class="eyebrow">03 / Delivery &amp; acceptance</p>
+      <h2>Prove the hard cases before scaling.</h2>
+      <p class="lead">Begin with deterministic verbatim copying, remaining in-scope tables and an instruction-compliance critic. Body-weight, physical-exam and clinical-pathology Results tables remain with the study director. <a href="agentic.html">Explore the combined agentic approach &rarr;</a></p>
+      <div class="timeline">
+        <article class="phase"><small>Phase 01</small><h3>Compile &amp; ground</h3><p>Review template rules. Classify sources, extract protocol facts and approve study setup.</p></article>
+        <article class="phase"><small>Phase 02</small><h3>Execute in code</h3><p>Implement verbatim sections, table transforms, conditions and numerical checks.</p></article>
+        <article class="phase"><small>Phase 03</small><h3>Add bounded agents</h3><p>Connect writer and judge roles. Test evidence support and invalidate downstream drafts on changes.</p></article>
+        <article class="phase"><small>Phase 04</small><h3>Review &amp; evaluate</h3><p>Validate Word output, reviewer controls and held-out studies before production hardening.</p></article>
+      </div>
+      <div class="routing">
+        <details><summary>Acceptance measures and governance</summary><div class="detail">Agree thresholds for verbatim fidelity, numeric accuracy, groundedness, task completeness, latency, cost and human review effort. Keep finalized reports as held-out comparison references, never generation inputs. Evaluations support quality evidence but do not confer GxP, CSV/CSA or 21 CFR compliance. Retention, immutable-storage scope, access controls and electronic-record requirements need quality-team approval.</div></details>
+        <details><summary>Deployment decisions still to confirm</summary><div class="detail">Sweden Central is the preferred region, subject to model, extraction-service and hosted-agent availability, quota and data-residency review. No US Data Zone deployment is assumed. Confirm an authorized sandbox subscription before provisioning. Private endpoints, managed identity, Key Vault and approved retention are target controls, not deployed guarantees. An eight-week delivery window is a planning hypothesis, not a commitment.</div></details>
+      </div>
+      <p class="note"><strong>Design status:</strong> proposed target workflow for customer review. Cloud orchestration, agent integrations and reviewer access require implementation and validation. This presentation does not process or upload documents.</p>
+    </div></section>
+  </main>
+  <footer><div class="wrap">
+    <p>GiniDocs &middot; Proposed solution design &middot; Customer review, 12 November 2026<br>No source documents, study identifiers or credentials are embedded.</p>
+    <div><a href="https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/hosted-agents">Foundry hosted agents</a><br><a href="https://learn.microsoft.com/en-us/azure/ai-services/content-understanding/overview">Content Understanding</a></div>
+  </div></footer>
+</body>
+</html>
