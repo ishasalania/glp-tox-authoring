@@ -311,7 +311,7 @@ footer b{color:#fff}
         <span class="k">Stage 2</span>
         <h3>Ingest and evidence gate</h3>
         <ul><li>Retain raw extraction and page provenance</li><li>One search record per page</li><li>Reported 77–82% text-layer confirmation on two studies</li><li>Unconfirmed pages go to review</li></ul>
-        <div class="svc"><span>Content Understanding</span><span>AI Search</span></div>
+        <div class="svc"><span>Content Understanding · primary</span><span>Document Intelligence · optional</span><span>Azure AI Search</span></div>
       </div>
       <div class="stage">
         <span class="k">Stage 3</span>
@@ -337,6 +337,7 @@ footer b{color:#fff}
         <div class="svc"><span>Word renderer</span></div>
       </div>
     </div>
+    <p class="note">Content Understanding is the primary extractor. Azure AI Document Intelligence Layout is a comparison and optional second engine for OCR, layout and tables, not a mandatory extra step. Either route must pass the same evidence checks; uncertain results still require review. Azure AI Search holds one record per source page and supports fallback retrieval and author questions.</p>
     <p class="note">5,000 pages is the design target, not a measured run. The supplied findings report a largest source PDF of 158 pages and no processed 5,000-page document. The 785-page timing is a package-level extraction result, not a single-file or end-to-end benchmark. Cost and throughput at target scale still need testing.</p>
   </div>
 </section>
@@ -378,7 +379,7 @@ footer b{color:#fff}
       <div>
         <div class="eyebrow">Agents at defined points</div>
         <h2>Agents decide, tools execute</h2>
-        <p>Proposed roles, not deployed agents. Runtime drafting uses approved evidence; the Search agent may inspect authorized candidate pages but cannot approve them. Tool names below describe proposed interfaces.</p>
+        <p>The evidence-bound writer handles section drafts. Four proposed specialist roles support contract authoring, fallback retrieval, critique and dependent sections. They do not replace the writer or deterministic tools. The Search agent may inspect authorized candidates but cannot approve them. Tool names below describe proposed interfaces, not deployed agents.</p>
       </div>
     </div>
     <div class="agents">

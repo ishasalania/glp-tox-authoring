@@ -97,7 +97,7 @@
     </div></section>
     <section><div class="wrap">
       <h2>2. Agents decide. Tools execute.</h2>
-      <p class="lead" style="margin-bottom:24px">Use agents where fixed rules need help. They propose actions or draft text from approved context; code checks the results. Tool names below are proposed interfaces, not deployed integrations.</p>
+      <p class="lead" style="margin-bottom:24px">Keep the evidence-bound writer for section drafting. Add four focused roles for template setup, fallback retrieval, critique and dependent sections. Code checks their outputs; people approve the required decisions. Tool names below are proposed interfaces, not deployed integrations.</p>
       <div class="agents">
         <article class="card"><span class="number">DESIGN TIME</span><h3>Contract authoring agent</h3><p>Read a new template and its colour legend. Propose tasks, evidence rules and writing instructions. A person reviews the contract before use.</p><div class="tools">Tools: <code>template_mapping</code> <code>contract_schema</code> <code>validate_contract</code></div></article>
         <article class="card"><span class="number">WHEN RULES FIND NOTHING</span><h3>Search fallback agent</h3><p>Search the authorized study's page index when headings or document types are unfamiliar. Propose evidence for gate checks and human approval; never approve it itself.</p><div class="tools">Tools: <code>search_pages</code> <code>get_evidence</code> <code>propose_evidence</code></div></article>
@@ -128,9 +128,10 @@
         <thead><tr><th scope="col">Azure service</th><th scope="col">What it does</th></tr></thead>
         <tbody>
           <tr><th scope="row">Blob Storage</th><td>Keep source documents and generated drafts in private storage.</td></tr>
-          <tr><th scope="row">Content Understanding</th><td>Extract text, tables and document structure from PDFs.</td></tr>
+          <tr><th scope="row">Azure AI Content Understanding</th><td>Primary extraction route: text, tables and document structure from PDFs.</td></tr>
+          <tr><th scope="row">Azure AI Document Intelligence Layout</th><td>Comparison and optional second extraction engine for OCR, layout and tables. Select it for evaluated cases; outputs still pass the same evidence checks and review.</td></tr>
           <tr><th scope="row">Microsoft Foundry</th><td>Provide model deployments for drafting and agent reasoning; optionally host an adapted agent workflow.</td></tr>
-          <tr><th scope="row">Azure AI Search</th><td>Find source pages when deterministic retrieval rules need a fallback.</td></tr>
+          <tr><th scope="row">Azure AI Search</th><td>Store one indexed record per source page. Support fallback retrieval and author questions; deterministic page-location rules remain the primary route.</td></tr>
           <tr><th scope="row">Container Apps</th><td>Host the fixed Agent Framework workflow and authenticated review API or UI.</td></tr>
           <tr><th scope="row">Entra ID &amp; Application Insights</th><td>Control access and monitor runs, failures and model calls without logging document content.</td></tr>
         </tbody>
