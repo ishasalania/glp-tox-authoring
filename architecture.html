@@ -123,12 +123,13 @@ td:first-child{font-weight:700;color:var(--forest);width:28%}
 .p-human{background:#ECEAE5;color:#3E4B47}
 
 /* agents */
-.agents{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
-.ag{min-width:0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px;display:flex;flex-direction:column}
-.ag .role{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
-.ag h3{font-size:23px;line-height:1.3;text-wrap:pretty;margin:10px 0 14px}
-.ag p{font-size:16px;line-height:1.65;color:#3E4B47;margin:0 0 22px}
-.ag .tools{margin-top:auto;font-size:12px;line-height:1.6;color:var(--muted);border-top:1px solid #ECEAE5;padding-top:16px;overflow-wrap:anywhere}
+.agents{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.ag{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;display:flex;flex-direction:column}
+.ag .role{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.ag h3{font-size:21px;margin:6px 0 10px}
+.ag p{font-size:15px;color:#3E4B47;margin:0 0 14px}
+.ag .tools{margin-top:auto;font-size:13px;color:var(--muted);border-top:1px solid #ECEAE5;padding-top:12px}
+.ag .tools code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:var(--forest);background:#F1F0EC;border-radius:4px;padding:1px 5px}
 .ag.human{background:var(--forest);border-color:var(--forest);color:#fff}
 .ag.human .role{color:var(--copper)}
 .ag.human p{color:#D7E2DE}
@@ -378,16 +379,16 @@ footer b{color:#fff}
       <div>
         <div class="eyebrow">Agents at defined points</div>
         <h2>Agents decide, tools execute</h2>
-        <p>Four proposed agents support the section writer. Code checks their outputs; people approve the required decisions. They do not replace the evidence gate or scientific judgement.</p>
+        <p>Proposed roles, not deployed agents. Runtime drafting uses approved evidence; the Search agent may inspect authorized candidate pages but cannot approve them. Tool names below describe proposed interfaces.</p>
       </div>
     </div>
     <div class="agents">
-      <div class="ag"><span class="role">New templates</span><h3>Contract authoring agent</h3><p>Suggests tasks and evidence rules from the Word template. A person approves them before use.</p><div class="tools">Template mapping · Rule validation</div></div>
-      <div class="ag"><span class="role">Missing evidence</span><h3>Search fallback agent</h3><p>Finds candidate pages within the authorized study when rules find nothing. Evidence checks and approval still apply.</p><div class="tools">Azure AI Search · Evidence review</div></div>
-      <div class="ag"><span class="role">Draft review</span><h3>Critic agent</h3><p>Flags incomplete or non-compliant drafts. One corrective retry within the shared budget, then author review.</p><div class="tools">Instruction checks · Draft validation</div></div>
-      <div class="ag"><span class="role">Approved sections</span><h3>Dependent-sections agent</h3><p>Drafts Summary and Conclusion from approved sections only. Changed inputs require a new check.</p><div class="tools">Approved sections · Include rules</div></div>
-      <div class="ag"><span class="role">Code, not an agent</span><h3>Planner and tools</h3><p>Locate evidence, fill known values, copy supported tables and render Word. Add exact-copy completeness checks next.</p><div class="tools">Evidence planner · Table copying · Word renderer</div></div>
-      <div class="ag human"><span class="role">Human approval</span><h3>Study director</h3><p>Owns scientific judgement, resolves author items and approves evidence and drafts. Signs in the document system.</p><div class="tools">Author items · Review and approval</div></div>
+      <div class="ag"><span class="role">Design time</span><h3>Contract authoring agent</h3><p>Reads a new template version and its colour legend and proposes the task contract: blocks per task, where evidence is found, how it is written. A person reviews it before use.</p><div class="tools"><code>template_mapping</code> <code>contract_schema</code> <code>validate_contract</code></div></div>
+      <div class="ag"><span class="role">When rules find nothing</span><h3>Search fallback agent</h3><p>For unknown document families or sections without a predictable heading, it searches the page index, checks the document and heading, and proposes evidence for approval.</p><div class="tools"><code>search_pages</code> <code>get_evidence</code> <code>propose_evidence</code></div></div>
+      <div class="ag"><span class="role">After every draft</span><h3>Critic agent</h3><p>Checks form, completeness, tense and exclusions. Findings share the existing one-retry and call budget, then become an author item; no extra unbounded retry loop.</p><div class="tools"><code>template_rules</code> <code>validate_draft</code> <code>redraft_task</code></div></div>
+      <div class="ag"><span class="role">Dependent sections</span><h3>Dependent-sections agent</h3><p>Drafts Summary and Conclusion only from approved sections in each Include list. Code builds contents and references. Source changes invalidate dependent drafts.</p><div class="tools"><code>approved_sections</code> <code>known_values</code> <code>validate_draft</code></div></div>
+      <div class="ag"><span class="role">Deterministic core</span><h3>Planner and tools</h3><p>Keep classification rules, locate rules, known values, supported table copying and rendering in code. Add deterministic verbatim copying with completeness checks next.</p><div class="tools"><code>evidence_planner</code> <code>table_copy</code> <code>renderer</code></div></div>
+      <div class="ag human"><span class="role">Author of record</span><h3>Study director</h3><p>Writes judgement sections, resolves author items and approves evidence and drafts. Final signing stays in the approved document management system.</p><div class="tools">Reviewer interface and approval workflow require cloud implementation</div></div>
     </div>
   </div>
 </section>
